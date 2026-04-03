@@ -1,6 +1,6 @@
 -- ===========================================
 -- SCRIPT ĐỘC QUYỀN BY: HLT Kem Đẹp zai
--- BẢN V27: BẠO CHÚA HỦY DIỆT (NO DELAY)
+-- BẢN V29: TỰ DO DI CHUYỂN (AUTO CLICK + KILL AURA)
 -- ===========================================
 
 if game.CoreGui:FindFirstChild("HLTHub_SupremeV25") then
@@ -10,6 +10,7 @@ end
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "HLTHub_SupremeV25"
 
+-- NÚT LƠ LỬNG
 local OpenBtn = Instance.new("TextButton", ScreenGui)
 OpenBtn.Size = UDim2.new(0, 50, 0, 50)
 OpenBtn.Position = UDim2.new(0, 10, 0.5, -25)
@@ -20,9 +21,10 @@ OpenBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 OpenBtn.TextSize = 16
 Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(0, 25)
 
+-- KHUNG MENU CHÍNH
 local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.new(0, 420, 0, 310)
-Main.Position = UDim2.new(0.5, -210, 0.5, -155)
+Main.Size = UDim2.new(0, 350, 0, 260)
+Main.Position = UDim2.new(0.5, -175, 0.5, -130)
 Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 Main.BorderSizePixel = 1
 Main.BorderColor3 = Color3.fromRGB(255, 0, 0)
@@ -32,15 +34,16 @@ Main.Visible = true
 
 OpenBtn.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
 
+-- THANH TIÊU ĐỀ
 local TopBar = Instance.new("Frame", Main)
 TopBar.Size = UDim2.new(1, 0, 0, 35)
 TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(1, -40, 1, 0)
 Title.Position = UDim2.new(0, 10, 0, 0)
-Title.Text = "HLT HUB - V27 (BẠO CHÚA HỦY DIỆT)"
+Title.Text = "HLT HUB - V29 (TỰ DO DI CHUYỂN)"
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 15
+Title.TextSize = 13
 Title.TextColor3 = Color3.fromRGB(255, 0, 0)
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -53,70 +56,35 @@ HideBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 HideBtn.Font = Enum.Font.GothamBold
 HideBtn.MouseButton1Click:Connect(function() Main.Visible = false end)
 
-local TabPanel = Instance.new("Frame", Main)
-TabPanel.Size = UDim2.new(0, 110, 1, -35)
-TabPanel.Position = UDim2.new(0, 0, 0, 35)
-TabPanel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-local TabListLayout = Instance.new("UIListLayout", TabPanel)
-
-local ContentFrame = Instance.new("Frame", Main)
-ContentFrame.Size = UDim2.new(1, -120, 1, -35)
-ContentFrame.Position = UDim2.new(0, 115, 0, 35)
+-- KHUNG CHỨA NÚT BẤM (GỌN GÀNG, KHÔNG CẦN CHIA TAB NỮA)
+local ContentFrame = Instance.new("ScrollingFrame", Main)
+ContentFrame.Size = UDim2.new(1, 0, 1, -35)
+ContentFrame.Position = UDim2.new(0, 0, 0, 35)
 ContentFrame.BackgroundTransparency = 1
+ContentFrame.ScrollBarThickness = 3
+local list = Instance.new("UIListLayout", ContentFrame)
+list.Padding = UDim.new(0, 5)
 
--- BIẾN HACK TOÀN CỤC (Thêm biến Đánh Xa)
+-- BIẾN HACK TOÀN CỤC
 _G = {
-    AutoFarm = false, TargetMob = "", AutoHit = false, BringMob = false,
-    KillAura = false, Reach = false, -- REACH LÀ ĐÁNH XA
-    AutoSkill = false, SkillZ = true, SkillX = true, SkillC = true, SkillV = true, SkillF = true
+    AutoClick = false,
+    KillAura = false,
+    AutoSkill = false
 }
 local VIM = game:GetService("VirtualInputManager")
 local VU = game:GetService("VirtualUser")
-local RunService = game:GetService("RunService")
 
-local ActiveContent, ActiveTabBtn = nil, nil
-
-local function CreateTab(name, firstTab)
-    local btn = Instance.new("TextButton", TabPanel)
-    btn.Size = UDim2.new(1, 0, 0, 40)
-    btn.Text = " > " .. name
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 13
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-
-    local content = Instance.new("ScrollingFrame", ContentFrame)
-    content.Size = UDim2.new(1, 0, 1, 0)
-    content.Visible = firstTab
-    content.BackgroundTransparency = 1
-    content.ScrollBarThickness = 2
-    local list = Instance.new("UIListLayout", content)
-    list.Padding = UDim.new(0, 5)
-
-    if firstTab then ActiveContent, ActiveTabBtn = content, btn btn.TextColor3 = Color3.fromRGB(255, 0, 0) end
-
-    btn.MouseButton1Click:Connect(function()
-        if ActiveContent then ActiveContent.Visible = false end
-        if ActiveTabBtn then ActiveTabBtn.TextColor3 = Color3.fromRGB(200, 200, 200) end
-        content.Visible = true
-        btn.TextColor3 = Color3.fromRGB(255, 0, 0)
-        ActiveContent, ActiveTabBtn = content, btn
-    end)
-    return content
-end
-
-local function CreateToggle(name, parent, varName)
-    local frame = Instance.new("Frame", parent)
-    frame.Size = UDim2.new(1, -5, 0, 35)
+local function CreateToggle(name, varName)
+    local frame = Instance.new("Frame", ContentFrame)
+    frame.Size = UDim2.new(1, -10, 0, 40)
     frame.BackgroundTransparency = 1
 
     local label = Instance.new("TextLabel", frame)
     label.Size = UDim2.new(0.7, 0, 1, 0)
-    label.Text = " " .. name
+    label.Text = "  " .. name
     label.Font = Enum.Font.GothamBold
-    label.TextSize = 12
-    label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    label.TextSize = 13
+    label.TextColor3 = Color3.fromRGB(220, 220, 220)
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.BackgroundTransparency = 1
 
@@ -146,125 +114,51 @@ local function CreateToggle(name, parent, varName)
     end)
 end
 
-local MainTab = CreateTab("Main (Farm)", true)
-local CombatTab = CreateTab("Combat VIP", false)
-
-local MobSelectorBtn = Instance.new("TextButton", MainTab)
-MobSelectorBtn.Size = UDim2.new(1, -10, 0, 35)
-MobSelectorBtn.Text = "CHỌN QUÁI: (Bấm Quét)"
-MobSelectorBtn.Font = Enum.Font.GothamBold
-MobSelectorBtn.TextSize = 12
-MobSelectorBtn.BackgroundColor3 = Color3.fromRGB(40, 10, 10)
-MobSelectorBtn.TextColor3 = Color3.fromRGB(255, 255, 0)
-
-local MobListFrame = Instance.new("ScrollingFrame", MainTab)
-MobListFrame.Size = UDim2.new(1, -10, 0, 100)
-MobListFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-MobListFrame.Visible = false
-MobListFrame.ScrollBarThickness = 2
-Instance.new("UIListLayout", MobListFrame)
-
-local RefreshBtn = Instance.new("TextButton", MainTab)
-RefreshBtn.Size = UDim2.new(1, -10, 0, 30)
-RefreshBtn.Text = "🔄 QUÉT TÌM QUÁI MỚI"
-RefreshBtn.Font = Enum.Font.GothamBold
-RefreshBtn.TextSize = 12
-RefreshBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-RefreshBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-RefreshBtn.MouseButton1Click:Connect(function()
-    for _, v in pairs(MobListFrame:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
-    MobListFrame.Visible = false
-    local count = 0
-    local found = {}
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Name ~= game.Players.LocalPlayer.Name and not found[v.Name] and not v.Name:find("Obstacle") then
-            found[v.Name] = true
-            local btn = Instance.new("TextButton", MobListFrame)
-            btn.Size = UDim2.new(1, -5, 0, 25)
-            btn.Text = v.Name
-            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            btn.TextColor3 = Color3.fromRGB(255, 255, 0)
-            btn.MouseButton1Click:Connect(function()
-                _G.TargetMob = v.Name
-                MobSelectorBtn.Text = "MỤC TIÊU: " .. v.Name
-                MobListFrame.Visible = false
-            end)
-            count = count + 1
-        end
-    end
-    MobListFrame.CanvasSize = UDim2.new(0, 0, 0, count * 26)
-    MobSelectorBtn.Text = "TÌM THẤY " .. count .. " LOẠI!"
-end)
-MobSelectorBtn.MouseButton1Click:Connect(function() MobListFrame.Visible = not MobListFrame.Visible end)
-
-CreateToggle("AUTO FARM CÀY LV", MainTab, "AutoFarm")
-CreateToggle("BRING MOB (GOM QUÁI)", MainTab, "BringMob")
-CreateToggle("AUTO HIT (Đánh Siêu Tốc)", MainTab, "AutoHit")
-
--- TAB COMBAT BẠO CHÚA
-CreateToggle("ĐÁNH XA (Phóng to Hitbox)", CombatTab, "Reach")
-CreateToggle("KILL AURA (Hút Tương Tác)", CombatTab, "KillAura")
-CreateToggle("SMART AUTO SKILL (No Delay)", CombatTab, "AutoSkill")
-
-local Line = Instance.new("Frame", CombatTab)
-Line.Size = UDim2.new(1, -10, 0, 2)
-Line.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
-Line.BorderSizePixel = 0
-
-CreateToggle("Cho phép xả Skill Z", CombatTab, "SkillZ")
-CreateToggle("Cho phép xả Skill X", CombatTab, "SkillX")
-CreateToggle("Cho phép xả Skill C", CombatTab, "SkillC")
-CreateToggle("Cho phép xả Skill V", CombatTab, "SkillV")
-CreateToggle("Cho phép xả Skill F", CombatTab, "SkillF")
+-- TẠO CÁC NÚT ĐÚNG NHƯ SẾP YÊU CẦU
+CreateToggle("AUTO CLICK (Vừa đi vừa chém)", "AutoClick")
+CreateToggle("KILL AURA (Hút mọi thứ lại gần)", "KillAura")
+CreateToggle("AUTO SKILL (Xả Z,X,C,V,F)", "AutoSkill")
 
 -- ===========================================
--- HỆ THỐNG XỬ LÝ SIÊU CẤP TỐC ĐỘ BÀN THỜ
+-- LÕI XỬ LÝ (KHÔNG BAO GIỜ KHÓA DI CHUYỂN CỦA SẾP)
 -- ===========================================
 local lp = game.Players.LocalPlayer
 
-local function GetTarget()
-    local target, dist = nil, math.huge
-    if not lp.Character or not lp.Character:FindFirstChild("HumanoidRootPart") then return nil end
-    local myPos = lp.Character.HumanoidRootPart.Position
-
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v ~= lp.Character then
-            if _G.AutoFarm and v.Name == _G.TargetMob then
-                local d = (myPos - v.HumanoidRootPart.Position).Magnitude
-                if d < dist then dist, target = d, v end
-            end
-        end
-    end
-    return target
-end
-
--- 1. AUTO CLICK SIÊU NHANH (Bung max tốc độ khung hình)
+-- 1. AUTO CLICK ĐƠN GIẢN VÀ HIỆU QUẢ
 task.spawn(function()
-    RunService.Heartbeat:Connect(function()
-        if (_G.AutoFarm or _G.KillAura) and _G.AutoHit and lp.Character then
+    while task.wait(0.1) do
+        if _G.AutoClick and lp.Character then
             pcall(function()
                 local tool = lp.Character:FindFirstChildOfClass("Tool")
                 if tool then
-                    tool:Activate()
+                    tool:Activate() -- Tự động chém vũ khí đang cầm
                 end
             end)
         end
-    end)
+    end
 end)
 
--- 2. ĐÁNH XA (HITBOX EXPANDER) - Bơm to gấp 60 lần
+-- 2. KILL AURA (PHIÊN BẢN ĐI BỘ CHUẨN MỰC)
+-- Chức năng: Tìm quái/người trong bán kính 60 mét, gom hết ra trước mặt sếp 5 mét để sếp vung kiếm.
 task.spawn(function()
-    while task.wait(0.5) do
-        if _G.Reach then
+    while task.wait(0.1) do
+        if _G.KillAura and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
             pcall(function()
+                local myHRP = lp.Character.HumanoidRootPart
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v ~= lp.Character then
                         local hrp = v:FindFirstChild("HumanoidRootPart")
                         if hrp then
-                            hrp.Size = Vector3.new(60, 60, 60)
-                            hrp.Transparency = 0.8 -- Hơi tàng hình để đỡ vướng mắt
-                            hrp.CanCollide = false
+                            local dist = (myHRP.Position - hrp.Position).Magnitude
+                            -- Nếu mục tiêu nằm trong vòng 60 mét quanh sếp
+                            if dist < 60 then
+                                -- Gom nó ra trước mặt sếp 5 mét
+                                hrp.CFrame = myHRP.CFrame * CFrame.new(0, 0, -5)
+                                -- Làm to Hitbox lên 1 chút để dễ chém
+                                hrp.Size = Vector3.new(10, 10, 10)
+                                hrp.Transparency = 0.5
+                                hrp.CanCollide = false
+                            end
                         end
                     end
                 end
@@ -273,16 +167,32 @@ task.spawn(function()
     end
 end)
 
--- 3. KILL AURA VIP (Hút toàn bộ mọi thứ vào kiếm)
+-- 3. SMART AUTO SKILL (CHỈ XẢ KHI CÓ ĐỊCH TRƯỚC MẶT)
 task.spawn(function()
-    while task.wait() do
-        if _G.KillAura and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+    while task.wait(0.5) do
+        if _G.AutoSkill and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
             pcall(function()
                 local myHRP = lp.Character.HumanoidRootPart
+                local hasTarget = false
+                
+                -- Quét xem có ai đang ở gần 20 mét không
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v ~= lp.Character then
-                        -- Dịch chuyển toàn bộ mục tiêu ra phía trước mặt người chơi 5 mét
-                        v.HumanoidRootPart.CFrame = myHRP.CFrame * CFrame.new(0, 0, -5)
+                        local hrp = v:FindFirstChild("HumanoidRootPart")
+                        if hrp and (myHRP.Position - hrp.Position).Magnitude < 20 then
+                            hasTarget = true
+                            break
+                        end
+                    end
+                end
+                
+                -- Nếu có địch ở gần thì mới xả skill
+                if hasTarget and lp.Character:FindFirstChildOfClass("Tool") then
+                    local keys = {"Z", "X", "C", "V", "F"}
+                    for _, key in pairs(keys) do
+                        VIM:SendKeyEvent(true, Enum.KeyCode[key], false, game)
+                        task.wait(0.05)
+                        VIM:SendKeyEvent(false, Enum.KeyCode[key], false, game)
                     end
                 end
             end)
@@ -290,42 +200,7 @@ task.spawn(function()
     end
 end)
 
--- 4. ĐỨNG TRÊN ĐẦU QUÁI (FARM)
-task.spawn(function()
-    while task.wait() do
-        if _G.AutoFarm and not _G.KillAura and lp.Character then
-            pcall(function()
-                local target = GetTarget()
-                if target then
-                    local root = lp.Character.HumanoidRootPart
-                    root.Velocity = Vector3.new(0, 0, 0)
-                    root.CFrame = target.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0)
-                end
-            end)
-        end
-    end
-end)
-
--- 5. SKILL XẢ NHƯ CÁI MÁY KHÂU (Mỗi 0.2 giây / KHÔNG DELAY)
-task.spawn(function()
-    while task.wait(0.2) do
-        if _G.AutoSkill and (_G.AutoFarm or _G.KillAura) and lp.Character then
-            pcall(function()
-                local keys = {"Z", "X", "C", "V", "F"}
-                for _, key in pairs(keys) do
-                    if _G["Skill"..key] then
-                        task.spawn(function() -- Tách luồng để nhấn cùng lúc
-                            VIM:SendKeyEvent(true, Enum.KeyCode[key], false, game)
-                            task.wait(0.01)
-                            VIM:SendKeyEvent(false, Enum.KeyCode[key], false, game)
-                        end)
-                    end
-                end
-            end)
-        end
-    end
-end)
-
+-- 4. CHỐNG AFK ĐỂ TREO MÁY
 if not getgenv().AntiAfkConnected then
     getgenv().AntiAfkConnected = true
     game.Players.LocalPlayer.Idled:Connect(function()
