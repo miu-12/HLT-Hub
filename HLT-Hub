@@ -1,6 +1,6 @@
 -- ===========================================
 -- SCRIPT ĐỘC QUYỀN BY: HLT Kem Đẹp zai
--- BẢN V30: CHỈ HÚT QUÁI (KHÔNG HÚT NPC) & TẦM XA 150M
+-- BẢN V31: FIX LỖI ĐÁNH KHÔNG TRÚNG & CỤC XÁM
 -- ===========================================
 
 if game.CoreGui:FindFirstChild("HLTHub_SupremeV25") then
@@ -38,7 +38,7 @@ TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(1, -40, 1, 0)
 Title.Position = UDim2.new(0, 10, 0, 0)
-Title.Text = "HLT HUB - V30 (TỐI ƯU HÚT QUÁI)"
+Title.Text = "HLT HUB - V31 (FIX COMBAT)"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 13
 Title.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -105,28 +105,36 @@ local function CreateToggle(name, varName)
     end)
 end
 
-CreateToggle("AUTO CLICK (Vừa đi vừa chém)", "AutoClick")
-CreateToggle("KILL AURA (Chỉ hút Quái, xa 150m)", "KillAura")
+CreateToggle("AUTO CLICK (Giả lập chạm cực chuẩn)", "AutoClick")
+CreateToggle("KILL AURA (Hút Quái 150m)", "KillAura")
 CreateToggle("AUTO SKILL (Xả Z,X,C,V,F)", "AutoSkill")
 
 -- ===========================================
--- LÕI XỬ LÝ (CHỈ NHẮM VÀO QUÁI)
+-- LÕI XỬ LÝ (FIX HITBOX + FIX CLICK)
 -- ===========================================
 local lp = game.Players.LocalPlayer
 
--- 1. AUTO CLICK
+-- 1. AUTO CLICK (DÙNG VIM MÔ PHỎNG CHẠM MÀN HÌNH ĐỂ TRÁNH LỖI)
 task.spawn(function()
     while task.wait(0.1) do
         if _G.AutoClick and lp.Character then
             pcall(function()
                 local tool = lp.Character:FindFirstChildOfClass("Tool")
-                if tool then tool:Activate() end
+                if tool then 
+                    tool:Activate() -- Lệnh phụ
+                    -- Lệnh chính: Giả lập ngón tay bấm vào giữa màn hình
+                    local cam = workspace.CurrentCamera
+                    local mid = cam.ViewportSize / 2
+                    VIM:SendMouseButtonEvent(mid.X, mid.Y, 0, true, game, 1)
+                    task.wait(0.01)
+                    VIM:SendMouseButtonEvent(mid.X, mid.Y, 0, false, game, 1)
+                end
             end)
         end
     end
 end)
 
--- 2. KILL AURA (ĐÃ LỌC NPC VÀ TĂNG TẦM LÊN 150M)
+-- 2. KILL AURA (ĐÃ XÓA LỆNH BƠM TO QUÁI)
 task.spawn(function()
     while task.wait(0.1) do
         if _G.KillAura and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
@@ -134,22 +142,20 @@ task.spawn(function()
                 local myHRP = lp.Character.HumanoidRootPart
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v ~= lp.Character then
-                        -- LỌC NGƯỜI CHƠI (Bỏ qua người chơi khác)
+                        -- LỌC NGƯỜI CHƠI
                         if not game.Players:GetPlayerFromCharacter(v) then
                             local nameL = string.lower(v.Name)
-                            -- LỌC NPC NHIỆM VỤ, THƯƠNG GIA (Bỏ qua những thứ có chữ npc, quest, giver...)
+                            -- LỌC NPC
                             local isNPC = nameL:find("npc") or nameL:find("quest") or nameL:find("giver") or nameL:find("dealer") or nameL:find("seller") or nameL:find("merchant") or nameL:find("citizen")
                             
                             if not isNPC then
                                 local hrp = v:FindFirstChild("HumanoidRootPart")
                                 if hrp then
                                     local dist = (myHRP.Position - hrp.Position).Magnitude
-                                    -- Tầm hút được nới rộng ra 150 mét
                                     if dist < 150 then
-                                        hrp.CFrame = myHRP.CFrame * CFrame.new(0, 0, -6) -- Hút ra trước mặt 6m
-                                        hrp.Size = Vector3.new(12, 12, 12) -- Làm hitbox quái to lên chút dễ chém
-                                        hrp.Transparency = 0.5
-                                        hrp.CanCollide = false
+                                        -- Hút quái ra trước mặt 6m. (ĐÃ BỎ LỆNH LÀM TO HITBOX ĐỂ SERVER NHẬN ĐƯỢC ĐAME)
+                                        hrp.CFrame = myHRP.CFrame * CFrame.new(0, 0, -6)
+                                        hrp.Velocity = Vector3.new(0, 0, 0)
                                     end
                                 end
                             end
@@ -161,7 +167,7 @@ task.spawn(function()
     end
 end)
 
--- 3. SMART AUTO SKILL (CŨNG CHỈ TUNG CHIÊU KHI CÓ QUÁI)
+-- 3. SMART AUTO SKILL
 task.spawn(function()
     while task.wait(0.5) do
         if _G.AutoSkill and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
