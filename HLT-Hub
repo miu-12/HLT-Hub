@@ -1,6 +1,6 @@
 -- ===========================================
 -- SCRIPT ĐỘC QUYỀN BY: HLT Kem Đẹp zai
--- BẢN V29: TỰ DO DI CHUYỂN (AUTO CLICK + KILL AURA)
+-- BẢN V30: CHỈ HÚT QUÁI (KHÔNG HÚT NPC) & TẦM XA 150M
 -- ===========================================
 
 if game.CoreGui:FindFirstChild("HLTHub_SupremeV25") then
@@ -10,7 +10,6 @@ end
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "HLTHub_SupremeV25"
 
--- NÚT LƠ LỬNG
 local OpenBtn = Instance.new("TextButton", ScreenGui)
 OpenBtn.Size = UDim2.new(0, 50, 0, 50)
 OpenBtn.Position = UDim2.new(0, 10, 0.5, -25)
@@ -21,10 +20,9 @@ OpenBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 OpenBtn.TextSize = 16
 Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(0, 25)
 
--- KHUNG MENU CHÍNH
 local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.new(0, 350, 0, 260)
-Main.Position = UDim2.new(0.5, -175, 0.5, -130)
+Main.Size = UDim2.new(0, 360, 0, 260)
+Main.Position = UDim2.new(0.5, -180, 0.5, -130)
 Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 Main.BorderSizePixel = 1
 Main.BorderColor3 = Color3.fromRGB(255, 0, 0)
@@ -34,14 +32,13 @@ Main.Visible = true
 
 OpenBtn.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
 
--- THANH TIÊU ĐỀ
 local TopBar = Instance.new("Frame", Main)
 TopBar.Size = UDim2.new(1, 0, 0, 35)
 TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(1, -40, 1, 0)
 Title.Position = UDim2.new(0, 10, 0, 0)
-Title.Text = "HLT HUB - V29 (TỰ DO DI CHUYỂN)"
+Title.Text = "HLT HUB - V30 (TỐI ƯU HÚT QUÁI)"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 13
 Title.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -56,7 +53,6 @@ HideBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 HideBtn.Font = Enum.Font.GothamBold
 HideBtn.MouseButton1Click:Connect(function() Main.Visible = false end)
 
--- KHUNG CHỨA NÚT BẤM (GỌN GÀNG, KHÔNG CẦN CHIA TAB NỮA)
 local ContentFrame = Instance.new("ScrollingFrame", Main)
 ContentFrame.Size = UDim2.new(1, 0, 1, -35)
 ContentFrame.Position = UDim2.new(0, 0, 0, 35)
@@ -65,12 +61,7 @@ ContentFrame.ScrollBarThickness = 3
 local list = Instance.new("UIListLayout", ContentFrame)
 list.Padding = UDim.new(0, 5)
 
--- BIẾN HACK TOÀN CỤC
-_G = {
-    AutoClick = false,
-    KillAura = false,
-    AutoSkill = false
-}
+_G = { AutoClick = false, KillAura = false, AutoSkill = false }
 local VIM = game:GetService("VirtualInputManager")
 local VU = game:GetService("VirtualUser")
 
@@ -83,7 +74,7 @@ local function CreateToggle(name, varName)
     label.Size = UDim2.new(0.7, 0, 1, 0)
     label.Text = "  " .. name
     label.Font = Enum.Font.GothamBold
-    label.TextSize = 13
+    label.TextSize = 12
     label.TextColor3 = Color3.fromRGB(220, 220, 220)
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.BackgroundTransparency = 1
@@ -114,32 +105,28 @@ local function CreateToggle(name, varName)
     end)
 end
 
--- TẠO CÁC NÚT ĐÚNG NHƯ SẾP YÊU CẦU
 CreateToggle("AUTO CLICK (Vừa đi vừa chém)", "AutoClick")
-CreateToggle("KILL AURA (Hút mọi thứ lại gần)", "KillAura")
+CreateToggle("KILL AURA (Chỉ hút Quái, xa 150m)", "KillAura")
 CreateToggle("AUTO SKILL (Xả Z,X,C,V,F)", "AutoSkill")
 
 -- ===========================================
--- LÕI XỬ LÝ (KHÔNG BAO GIỜ KHÓA DI CHUYỂN CỦA SẾP)
+-- LÕI XỬ LÝ (CHỈ NHẮM VÀO QUÁI)
 -- ===========================================
 local lp = game.Players.LocalPlayer
 
--- 1. AUTO CLICK ĐƠN GIẢN VÀ HIỆU QUẢ
+-- 1. AUTO CLICK
 task.spawn(function()
     while task.wait(0.1) do
         if _G.AutoClick and lp.Character then
             pcall(function()
                 local tool = lp.Character:FindFirstChildOfClass("Tool")
-                if tool then
-                    tool:Activate() -- Tự động chém vũ khí đang cầm
-                end
+                if tool then tool:Activate() end
             end)
         end
     end
 end)
 
--- 2. KILL AURA (PHIÊN BẢN ĐI BỘ CHUẨN MỰC)
--- Chức năng: Tìm quái/người trong bán kính 60 mét, gom hết ra trước mặt sếp 5 mét để sếp vung kiếm.
+-- 2. KILL AURA (ĐÃ LỌC NPC VÀ TĂNG TẦM LÊN 150M)
 task.spawn(function()
     while task.wait(0.1) do
         if _G.KillAura and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
@@ -147,17 +134,24 @@ task.spawn(function()
                 local myHRP = lp.Character.HumanoidRootPart
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v ~= lp.Character then
-                        local hrp = v:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            local dist = (myHRP.Position - hrp.Position).Magnitude
-                            -- Nếu mục tiêu nằm trong vòng 60 mét quanh sếp
-                            if dist < 60 then
-                                -- Gom nó ra trước mặt sếp 5 mét
-                                hrp.CFrame = myHRP.CFrame * CFrame.new(0, 0, -5)
-                                -- Làm to Hitbox lên 1 chút để dễ chém
-                                hrp.Size = Vector3.new(10, 10, 10)
-                                hrp.Transparency = 0.5
-                                hrp.CanCollide = false
+                        -- LỌC NGƯỜI CHƠI (Bỏ qua người chơi khác)
+                        if not game.Players:GetPlayerFromCharacter(v) then
+                            local nameL = string.lower(v.Name)
+                            -- LỌC NPC NHIỆM VỤ, THƯƠNG GIA (Bỏ qua những thứ có chữ npc, quest, giver...)
+                            local isNPC = nameL:find("npc") or nameL:find("quest") or nameL:find("giver") or nameL:find("dealer") or nameL:find("seller") or nameL:find("merchant") or nameL:find("citizen")
+                            
+                            if not isNPC then
+                                local hrp = v:FindFirstChild("HumanoidRootPart")
+                                if hrp then
+                                    local dist = (myHRP.Position - hrp.Position).Magnitude
+                                    -- Tầm hút được nới rộng ra 150 mét
+                                    if dist < 150 then
+                                        hrp.CFrame = myHRP.CFrame * CFrame.new(0, 0, -6) -- Hút ra trước mặt 6m
+                                        hrp.Size = Vector3.new(12, 12, 12) -- Làm hitbox quái to lên chút dễ chém
+                                        hrp.Transparency = 0.5
+                                        hrp.CanCollide = false
+                                    end
+                                end
                             end
                         end
                     end
@@ -167,7 +161,7 @@ task.spawn(function()
     end
 end)
 
--- 3. SMART AUTO SKILL (CHỈ XẢ KHI CÓ ĐỊCH TRƯỚC MẶT)
+-- 3. SMART AUTO SKILL (CŨNG CHỈ TUNG CHIÊU KHI CÓ QUÁI)
 task.spawn(function()
     while task.wait(0.5) do
         if _G.AutoSkill and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
@@ -175,18 +169,23 @@ task.spawn(function()
                 local myHRP = lp.Character.HumanoidRootPart
                 local hasTarget = false
                 
-                -- Quét xem có ai đang ở gần 20 mét không
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v ~= lp.Character then
-                        local hrp = v:FindFirstChild("HumanoidRootPart")
-                        if hrp and (myHRP.Position - hrp.Position).Magnitude < 20 then
-                            hasTarget = true
-                            break
+                        if not game.Players:GetPlayerFromCharacter(v) then
+                            local nameL = string.lower(v.Name)
+                            local isNPC = nameL:find("npc") or nameL:find("quest") or nameL:find("giver") or nameL:find("dealer") or nameL:find("merchant")
+                            
+                            if not isNPC then
+                                local hrp = v:FindFirstChild("HumanoidRootPart")
+                                if hrp and (myHRP.Position - hrp.Position).Magnitude < 25 then
+                                    hasTarget = true
+                                    break
+                                end
+                            end
                         end
                     end
                 end
                 
-                -- Nếu có địch ở gần thì mới xả skill
                 if hasTarget and lp.Character:FindFirstChildOfClass("Tool") then
                     local keys = {"Z", "X", "C", "V", "F"}
                     for _, key in pairs(keys) do
@@ -200,7 +199,7 @@ task.spawn(function()
     end
 end)
 
--- 4. CHỐNG AFK ĐỂ TREO MÁY
+-- 4. CHỐNG AFK
 if not getgenv().AntiAfkConnected then
     getgenv().AntiAfkConnected = true
     game.Players.LocalPlayer.Idled:Connect(function()
