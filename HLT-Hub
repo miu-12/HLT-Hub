@@ -1,33 +1,31 @@
 -- ===========================================
 -- SCRIPT ĐỘC QUYỀN BY: HLT Kem Đẹp zai
--- BẢN V21: SATANIC CLONE (GIAO DIỆN CHÚA TỂ)
+-- BẢN V22: SATANIC UI + AI SMART ASSISTANT
 -- ===========================================
 
--- 0. KHỞI TẠO MENU CHÍNH (Clone phong cách Satanic)
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.new(0, 390, 0, 260) -- Kích thước rộng rãi như ảnh
+Main.Size = UDim2.new(0, 390, 0, 260)
 Main.Position = UDim2.new(0.5, -195, 0.5, -130)
-Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12) -- Nền siêu tối
+Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
 Main.BorderSizePixel = 1
-Main.BorderColor3 = Color3.fromRGB(200, 0, 0) -- Viền đỏ đậm cực ngầu
+Main.BorderColor3 = Color3.fromRGB(200, 0, 0)
 Main.Draggable = true
 Main.Active = true
 
--- 1. THANH TIÊU ĐỀ (Top Bar)
+-- THANH TIÊU ĐỀ
 local TopBar = Instance.new("Frame", Main)
 TopBar.Size = UDim2.new(1, 0, 0, 35)
-TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25) -- Tối hơn nền chút
+TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 local Title = Instance.new("TextLabel", TopBar)
-Title.Size = UDim2.new(1, -40, 1, 0) -- Trừ ra nút X
+Title.Size = UDim2.new(1, -40, 1, 0)
 Title.Position = UDim2.new(0, 5, 0, 0)
-Title.Text = "HLT KEM ĐẸP ZAI HUB (V21)"
+Title.Text = "HLT KEM ĐẸP ZAI HUB (V22 AI)"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 18
-Title.TextColor3 = Color3.fromRGB(255, 0, 0) -- Tên màu đỏ rực
-Title.TextXAlignment = Enum.TextXAlignment.Left -- Căn trái như Satanic
+Title.TextColor3 = Color3.fromRGB(255, 0, 0)
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- NÚT ĐÓNG (X)
 local CloseBtn = Instance.new("TextButton", TopBar)
 CloseBtn.Size = UDim2.new(0, 30, 0, 30)
 CloseBtn.Position = UDim2.new(1, -35, 0, 2.5)
@@ -38,63 +36,56 @@ CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- 2. KHUNG DANH SÁCH TAB (BÊN TRÁI - Y CHANG ẢNH)
+-- LAYOUT BÊN TRÁI & PHẢI
 local TabPanel = Instance.new("Frame", Main)
-TabPanel.Size = UDim2.new(0, 110, 1, -40) -- Kích thước panel trái
+TabPanel.Size = UDim2.new(0, 110, 1, -40)
 TabPanel.Position = UDim2.new(0, 0, 0, 35)
 TabPanel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-local TabListLayout = Instance.new("UIListLayout", TabPanel) -- Sắp xếp tự động
+local TabListLayout = Instance.new("UIListLayout", TabPanel)
 
--- 3. KHUNG NỘI DUNG (BÊN PHẢI)
 local ContentFrame = Instance.new("Frame", Main)
 ContentFrame.Size = UDim2.new(1, -115, 1, -45)
 ContentFrame.Position = UDim2.new(0, 112, 0, 37)
 ContentFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 
--- 4. FOOTER (Flex Tên - "made by HLT Kem Đẹp zai")
+-- FOOTER
 local FooterText = Instance.new("TextLabel", Main)
 FooterText.Size = UDim2.new(1, -120, 0, 20)
 FooterText.Position = UDim2.new(0, 115, 1, -22)
-FooterText.Text = "Made by: HLT Kem Đẹp zai (God)"
+FooterText.Text = "AI Powered by: HLT Kem Đẹp zai"
 FooterText.Font = Enum.Font.GothamBold
 FooterText.TextSize = 10
-FooterText.TextColor3 = Color3.fromRGB(100, 100, 100) -- Màu xám nhẹ
-FooterText.TextXAlignment = Enum.TextXAlignment.Right -- Căn phải như Satanic
+FooterText.TextColor3 = Color3.fromRGB(100, 100, 100)
+FooterText.TextXAlignment = Enum.TextXAlignment.Right
 
--- BIẾN ĐIỀU KHIỂN HACK
-_G = { AutoFarm = false, TargetMob = "", BringMob = false, FastAttack = false }
+-- GLOBAL VARIABLES (Thêm biến AI)
+_G = { AutoFarm = false, TargetMob = "", BringMob = false, AISurvival = false, AIFlexChat = false, IsHealing = false }
 local VIM = game:GetService("VirtualInputManager")
 
--- ===========================================
--- HÀM THÀNH PHẦN VIP (TẠO TAB & TOGGLE STYLE SATANIC)
--- ===========================================
+local ActiveTabContent, ActiveTabBtn = nil, nil
 
-local ActiveTabContent = nil
-local ActiveTabBtn = nil
-
--- HÀM TẠO TAB (Nút bên trái)
+-- HÀM TẠO TAB & TOGGLE
 local function CreateTab(name, firstTab)
     local btn = Instance.new("TextButton", TabPanel)
     btn.Size = UDim2.new(1, 0, 0, 35)
     btn.Text = " > " .. name
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
+    btn.TextSize = 13
     btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200) -- Màu xám nhạt
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     btn.TextXAlignment = Enum.TextXAlignment.Left
 
     local content = Instance.new("ScrollingFrame", ContentFrame)
     content.Size = UDim2.new(1, 0, 1, 0)
     content.BackgroundTransparency = 1
-    content.Visible = firstTab -- Hiện nếu là tab đầu tiên
+    content.Visible = firstTab
     content.ScrollBarThickness = 3
     local list = Instance.new("UIListLayout", content)
     list.Padding = UDim.new(0, 5)
 
     if firstTab then 
-        ActiveTabContent = content
-        ActiveTabBtn = btn
-        btn.TextColor3 = Color3.fromRGB(255, 0, 0) -- Tab đầu tiên màu đỏ
+        ActiveTabContent, ActiveTabBtn = content, btn
+        btn.TextColor3 = Color3.fromRGB(255, 0, 0)
     end
 
     btn.MouseButton1Click:Connect(function()
@@ -102,13 +93,11 @@ local function CreateTab(name, firstTab)
         if ActiveTabBtn then ActiveTabBtn.TextColor3 = Color3.fromRGB(200, 200, 200) end
         content.Visible = true
         btn.TextColor3 = Color3.fromRGB(255, 0, 0)
-        ActiveTabContent = content
-        ActiveTabBtn = btn
+        ActiveTabContent, ActiveTabBtn = content, btn
     end)
     return content
 end
 
--- HÀM TẠO TOGGLE (Bật/Tắt - Phong cách Satellite)
 local function CreateToggle(name, parent, varName)
     local frame = Instance.new("Frame", parent)
     frame.Size = UDim2.new(1, 0, 0, 30)
@@ -126,9 +115,9 @@ local function CreateToggle(name, parent, varName)
     local toggleBtn = Instance.new("TextButton", frame)
     toggleBtn.Size = UDim2.new(0.25, 0, 0.9, 0)
     toggleBtn.Position = UDim2.new(0.75, 0, 0.05, 0)
-    toggleBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Màu chìm khi OFF
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
     toggleBtn.BorderSizePixel = 1
-    toggleBtn.BorderColor3 = Color3.fromRGB(50, 50, 50) -- Viền xám chìm
+    toggleBtn.BorderColor3 = Color3.fromRGB(50, 50, 50)
     toggleBtn.Text = "OFF"
     toggleBtn.Font = Enum.Font.GothamBold
     toggleBtn.TextSize = 12
@@ -137,8 +126,8 @@ local function CreateToggle(name, parent, varName)
     toggleBtn.MouseButton1Click:Connect(function()
         _G[varName] = not _G[varName]
         if _G[varName] then
-            toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0) -- Màu đỏ đậm khi ON
-            toggleBtn.BorderColor3 = Color3.fromRGB(255, 0, 0) -- Viền đỏ rực khi ON
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+            toggleBtn.BorderColor3 = Color3.fromRGB(255, 0, 0)
             toggleBtn.Text = "ON"
             toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         else
@@ -151,34 +140,30 @@ local function CreateToggle(name, parent, varName)
 end
 
 -- ===========================================
--- XÂY DỰNG TAB LIST (Clone y chang Satanic)
+-- TẠO CÁC TAB
 -- ===========================================
-local MainTab = CreateTab("Main", true) -- Tab chính
-local FarmTab = CreateTab("Farm", false) -- Tab phụ (Placeholder)
-CreateTab("Player", false) -- Placeholder
-CreateTab("Combat", false) -- Placeholder
-CreateTab("Fruits", false) -- Placeholder
-CreateTab("Misc", false) -- Placeholder
+local MainTab = CreateTab("Main", true)
+local AITab = CreateTab("AI Mode", false) -- TAB MỚI CHO AI
+local PlayerTab = CreateTab("Player", false)
+local MiscTab = CreateTab("Misc", false)
 
 -- ===========================================
--- TÍNH NĂNG CHÍNH (Kết hợp Radar Dynamic của V19)
+-- NỘI DUNG TAB MAIN (RADAR NHƯ CŨ)
 -- ===========================================
-
--- 1. NÚT CHỌN QUÁI (Radar Chuẩn V19)
 local MobSelectorBtn = Instance.new("TextButton", MainTab)
 MobSelectorBtn.Size = UDim2.new(1, -10, 0, 30)
 MobSelectorBtn.Text = "CHỌN QUÁI: (Bấm Quét)"
 MobSelectorBtn.Font = Enum.Font.GothamBold
 MobSelectorBtn.TextSize = 12
 MobSelectorBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-MobSelectorBtn.TextColor3 = Color3.fromRGB(255, 255, 0) -- Chữ vàng VIP
+MobSelectorBtn.TextColor3 = Color3.fromRGB(255, 255, 0)
 
 local MobListFrame = Instance.new("ScrollingFrame", MainTab)
 MobListFrame.Size = UDim2.new(1, -10, 0, 100)
 MobListFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MobListFrame.Visible = false
 MobListFrame.ScrollBarThickness = 2
-local MobListLayout = Instance.new("UIListLayout", MobListFrame)
+Instance.new("UIListLayout", MobListFrame)
 
 local RefreshBtn = Instance.new("TextButton", MainTab)
 RefreshBtn.Size = UDim2.new(1, -10, 0, 25)
@@ -188,7 +173,6 @@ RefreshBtn.TextSize = 12
 RefreshBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 RefreshBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- XỬ LÝ RADAR
 RefreshBtn.MouseButton1Click:Connect(function()
     for _, v in pairs(MobListFrame:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
     MobListFrame.Visible = false
@@ -215,16 +199,19 @@ RefreshBtn.MouseButton1Click:Connect(function()
 end)
 MobSelectorBtn.MouseButton1Click:Connect(function() MobListFrame.Visible = not MobListFrame.Visible end)
 
--- 2. CÁC NÚT TOGGLE (Dựa trên ảnh Satanic nhưng dùng Core V19)
 CreateToggle("Auto Farm Level", MainTab, "AutoFarm")
 CreateToggle("Bring Mob (Gom quái)", MainTab, "BringMob")
-CreateToggle("Fast Attack (Placeholder)", MainTab, "FastAttack") -- Chừa chỗ như ảnh
 
 -- ===========================================
--- HỆ THỐNG XỬ LÝ HACK (Core V19 chuẩn mượt)
+-- NỘI DUNG TAB AI MODE (TÍNH NĂNG MỚI)
+-- ===========================================
+CreateToggle("AI Sinh Tồn (Né Chết)", AITab, "AISurvival")
+CreateToggle("AI Flex Chat (Auto Gáy)", AITab, "AIFlexChat")
+
+-- ===========================================
+-- HỆ THỐNG XỬ LÝ (CORE LOGIC + AI)
 -- ===========================================
 
--- 1. Tìm quái
 local function GetMob()
     local target, dist = nil, math.huge
     local pChar = game.Players.LocalPlayer.Character
@@ -238,24 +225,47 @@ local function GetMob()
     return target
 end
 
--- 2. Vòng lặp Farm (Sếp tự chọn quái + đứng đầu 7m)
+-- VÒNG LẶP CHÍNH (Kết hợp AI Sinh Tồn)
 task.spawn(function()
     while task.wait(0.1) do
         if _G.AutoFarm and _G.TargetMob ~= "" then
             pcall(function()
-                local char = game.Players.LocalPlayer.Character
+                local lp = game.Players.LocalPlayer
+                local char = lp.Character
                 local root = char.HumanoidRootPart
-                local target = GetMob()
-                if target and char and char.Humanoid.Health > 0 then
+                local hum = char.Humanoid
+                
+                -- HỆ THỐNG AI SINH TỒN
+                if _G.AISurvival then
+                    if hum.Health <= (hum.MaxHealth * 0.3) then -- Dưới 30% máu
+                        _G.IsHealing = true
+                    elseif hum.Health >= (hum.MaxHealth * 0.9) then -- Hồi trên 90% máu
+                        _G.IsHealing = false
+                    end
+                else
+                    _G.IsHealing = false -- Nếu tắt AI thì dập tắt trạng thái
+                end
+
+                -- NẾU ĐANG CHẠY TRỐN ĐỂ HỒI MÁU
+                if _G.IsHealing then
                     root.Velocity = Vector3.new(0, 0, 0)
-                    root.CFrame = target.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) -- Khoảng cách 7m
+                    -- Bay tuốt lên trời 50 mét chờ hồi máu
+                    root.CFrame = root.CFrame * CFrame.new(0, 50, 0)
+                    return -- Dừng việc đánh quái ở dưới lại
+                end
+
+                -- NẾU KHÔNG PHẢI HỒI MÁU THÌ ĐÁNH TIẾP
+                local target = GetMob()
+                if target and hum.Health > 0 then
+                    root.Velocity = Vector3.new(0, 0, 0)
+                    root.CFrame = target.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) 
                     
                     local tool = char:FindFirstChildOfClass("Tool")
-                    if tool then tool:Activate() end -- Chém bằng Soul Reaper
+                    if tool then tool:Activate() end 
                     
                     local cam = workspace.CurrentCamera
                     local mid = cam.ViewportSize / 2
-                    VIM:SendMouseButtonEvent(mid.X, mid.Y, 0, true, game, 1) -- Click màn hình
+                    VIM:SendMouseButtonEvent(mid.X, mid.Y, 0, true, game, 1) 
                     task.wait(0.01)
                     VIM:SendMouseButtonEvent(mid.X, mid.Y, 0, false, game, 1)
                 end
@@ -264,17 +274,31 @@ task.spawn(function()
     end
 end)
 
--- 3. Gom Quái (Bring Mob - V19)
+-- AI AUTO FLEX CHAT (Gáy khi quái chết)
 task.spawn(function()
-    while task.wait(0.5) do
-        if _G.AutoFarm and _G.BringMob and _G.TargetMob ~= "" then
+    while task.wait(2) do
+        if _G.AutoFarm and _G.AIFlexChat then
             pcall(function()
-                local mainMob = GetMob()
-                if mainMob then
-                    local targetPos = mainMob.HumanoidRootPart.CFrame
+                local pChar = game.Players.LocalPlayer.Character
+                if pChar then
+                    -- Quét xem quanh mình có xác con nào vừa chết không
                     for _, v in pairs(workspace:GetDescendants()) do
-                        if v:IsA("Model") and v.Name == _G.TargetMob and v ~= mainMob and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                            v.HumanoidRootPart.CFrame = targetPos -- Hút về 1 chỗ
+                        if v:IsA("Model") and v.Name == _G.TargetMob and v:FindFirstChild("Humanoid") then
+                            if v.Humanoid.Health <= 0 then
+                                -- Đo khoảng cách, nếu chết gần mình thì gáy
+                                local dist = (pChar.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
+                                if dist < 20 then
+                                    local messages = {
+                                        "Đụng vào HLT Kem Đẹp zai là dở rồi!",
+                                        "Tuổi gì đòi ăn được anh?",
+                                        "Bản Hub VIP này mạnh quá, quái khóc thét!",
+                                        "Sếp HLT Kem Đẹp zai muôn năm!"
+                                    }
+                                    local randomMsg = messages[math.random(1, #messages)]
+                                    game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(randomMsg, "All")
+                                    task.wait(5) -- Đợi 5 giây mới gáy tiếp để khỏi bị game cấm chat
+                                end
+                            end
                         end
                     end
                 end
@@ -283,6 +307,23 @@ task.spawn(function()
     end
 end)
 
--- THÔNG BÁO VIP KHỞI TẠO HUB
-game.StarterGui:SetCore("SendNotification", { Title = "VIP HLT HUB V21", Text = "Sẵn sàng diệt Server!", Duration = 10 })
+-- GOM QUÁI
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.AutoFarm and _G.BringMob and _G.TargetMob ~= "" and not _G.IsHealing then
+            pcall(function()
+                local mainMob = GetMob()
+                if mainMob then
+                    local targetPos = mainMob.HumanoidRootPart.CFrame
+                    for _, v in pairs(workspace:GetDescendants()) do
+                        if v:IsA("Model") and v.Name == _G.TargetMob and v ~= mainMob and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            v.HumanoidRootPart.CFrame = targetPos
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
 
+game.StarterGui:SetCore("SendNotification", { Title = "AI SYSTEM ONLINE", Text = "Hệ thống AI đã sẵn sàng phục vụ sếp!", Duration = 5 })
